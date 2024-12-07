@@ -13,30 +13,96 @@ load_dotenv()
 
 # MICROSERVICES:
 MICROSERVICES = {
-    "abonnement": os.getenv("ABONNEMENT_MICROSERVICE_URL", "http://localhost:5006"),
     "user": os.getenv("USER_MICROSERVICE_URL", "http://localhost:5005"),
+    "abonnement": os.getenv("ABONNEMENT_MICROSERVICE_URL", "http://localhost:5006"),
+    "skade": os.getenv("SKADE_MICROSERVICE_URL", "http://localhost:5007"),
 }
 
 # Initialize Swagger
 init_swagger(app)
 
+# ----------------------------------------------------- GET /
+# Root endpoint with gateway documentation
+@app.route('/', methods=['GET'])
+def service_info():
+    return jsonify({
+        "service": "Finance Gateway",
+        "description": "This gateway handles financial operations including subscriptions, pricing, and damage cost summaries.",
+        "endpoints": [
+            {
+                "path": "/subscriptions",
+                "method": "GET",
+                "description": "Get all subscriptions",
+                "response": "JSON array of subscription objects",
+                "role_required": "admin or finance"
+            },
+            {
+                "path": "/subscriptions/current/total-price",
+                "method": "GET",
+                "description": "Get the total price of current subscriptions",
+                "response": "JSON object with total price",
+                "role_required": "admin or finance"
+            },
+            {
+                "path": "/damage-reports",
+                "method": "GET",
+                "description": "Get all damage reports",
+                "response": "JSON array of damage report objects",
+                "role_required": "admin or finance"
+            },
+            {
+                "path": "/damage-types",
+                "method": "GET",
+                "description": "Get all damage types",
+                "response": "JSON array of damage type objects",
+                "role_required": "admin or finance"
+            },
+            {
+                "path": "/cars/<id>/damage-costs",
+                "method": "GET",
+                "description": "Get damage costs for a specific car by ID",
+                "response": "JSON object with damage costs",
+                "role_required": "admin or finance"
+            },
+            {
+                "path": "/damage-reports/subscriptions/<subscriptionId>/total-damage",
+                "method": "GET",
+                "description": "Get total damage costs for a specific subscription by ID",
+                "response": "JSON object with total damage costs",
+                "role_required": "admin or finance"
+            },
+            {
+                "path": "/login",
+                "method": "POST",
+                "description": "Authenticate a user and return a token",
+                "response": "JSON object with token or error message",
+                "role_required": "none"
+            }
+        ]
+    })
+
 # ----------------------------------------------------- GET /subscriptions
-@app.route('/subscriptions', methods=['GET']) 
-def get_subscriptions(): 
-    response = requests.get(f"{MICROSERVICES['abonnement']}/subscriptions") 
-    if response.status_code == 200: 
-        return jsonify(response.json()), 200 
-    else: 
-        data = response.json
+@app.route('/subscriptions', methods=['GET'])
+@swag_from('swagger/get_subscriptions.yaml')
+def get_subscriptions():
+    response = requests.get(
+        url=f"{MICROSERVICES['abonnement']}/subscriptions", 
+        cookies=request.cookies
+        )
+    if response.status_code == 200:
+        return jsonify(response.json()), 200
+    else:
+        data = response.json()
         return jsonify({
             "error": "Failed to fetch from microservice",
             "data_returned_from_microservice": data
         }), response.status_code
 
-# ----------------------------------------------------- GET /subscriptions/total-price
-@app.route('/subscriptions/total-price', methods=['GET'])
+# ----------------------------------------------------- GET /subscriptions/current/total-price
+@app.route('/subscriptions/current/total-price', methods=['GET'])
+@swag_from('swagger/get_current_subscriptions_total_price.yaml')
 def get_total_price():
-    response = requests.get(f"{MICROSERVICES['abonnement']}/subscriptions/total-price")
+    response = requests.get(f"{MICROSERVICES['abonnement']}/subscriptions/current/total-price",cookies=request.cookies)
     if response.status_code == 200:
         return jsonify(response.json()), 200
     else:
@@ -48,8 +114,9 @@ def get_total_price():
 
 # ----------------------------------------------------- GET /damage-reports
 @app.route('/damage-reports', methods=['GET'])
+@swag_from('swagger/get_all_damage_reports.yaml')
 def get_damage_reports():
-    response = requests.get(f"{MICROSERVICES['abonnement']}/damage-reports") # TODO update microservice
+    response = requests.get(f"{MICROSERVICES['skade']}/damage-reports",cookies=request.cookies)
     if response.status_code == 200:
         return jsonify(response.json()), 200
     else:
@@ -61,8 +128,9 @@ def get_damage_reports():
 
 # ----------------------------------------------------- GET /damage-types 
 @app.route('/damage-types', methods=['GET'])
+@swag_from('swagger/get_damage_types.yaml')
 def get_damage_types():
-    response = requests.get(f"{MICROSERVICES['abonnement']}/damage-types") # TODO update microservice
+    response = requests.get(f"{MICROSERVICES['skade']}/damage-types",cookies=request.cookies)
     if response.status_code == 200:
         return jsonify(response.json()), 200
     else:
@@ -74,8 +142,9 @@ def get_damage_types():
 
 # ----------------------------------------------------- GET /cars/<id>/damage-costs
 @app.route('/cars/<id>/damage-costs', methods=['GET'])
+#@swag_from('swagger/get_subscriptions.yaml') # TODO
 def get_damage_costs(id):
-    response = requests.get(f"{MICROSERVICES['abonnement']}/cars/{id}/damage-costs") # TODO update microservice
+    response = requests.get(f"{MICROSERVICES['abonnement']}/cars/{id}/damage-costs",cookies=request.cookies)
     if response.status_code == 200:
         return jsonify(response.json()), 200
     else:
@@ -87,8 +156,9 @@ def get_damage_costs(id):
 
 # ----------------------------------------------------- GET /damage-reports/subscriptions/<subscriptionId>/total-damage
 @app.route('/damage-reports/subscriptions/<subscriptionId>/total-damage', methods=['GET'])
+@swag_from('swagger/get_total_cost_by_subscriptionid.yaml')
 def get_total_damage(subscriptionId):
-    response = requests.get(f"{MICROSERVICES['abonnement']}/damage-reports/subscriptions/{subscriptionId}/total-damage") # TODO update microservice
+    response = requests.get(f"{MICROSERVICES['skade']}/damage-reports/subscriptions/{subscriptionId}/total-damage",cookies=request.cookies)
     if response.status_code == 200:
         return jsonify(response.json()), 200
     else:
@@ -100,10 +170,27 @@ def get_total_damage(subscriptionId):
 
 # ----------------------------------------------------- POST /login
 @app.route('/login', methods=['POST'])
+@swag_from('swagger/login.yaml')
 def login():
-    response = requests.post(f"{MICROSERVICES['user']}/login")
+    response = requests.post(
+        url=f"{MICROSERVICES['user']}/login",
+        cookies=request.cookies,
+        json=request.json,
+        headers={'Content-Type': 'application/json'}
+    )
+
     if response.status_code == 200:
-        return jsonify(response.json()), 200
+        response_data = response.json()
+        
+        # Create the Flask response
+        flask_response = jsonify(response_data)
+        
+        # Extract cookies from the microservice response
+        if 'Authorization' in response.cookies:
+            auth_cookie = response.cookies['Authorization']
+            flask_response.set_cookie('Authorization', auth_cookie, httponly=True, secure=True)
+        
+        return flask_response, 200
     else:
         data = response.json()
         return jsonify({
