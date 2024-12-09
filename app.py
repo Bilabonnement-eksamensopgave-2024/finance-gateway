@@ -89,10 +89,14 @@ def get_subscriptions():
         url=f"{MICROSERVICES['abonnement']}/subscriptions", 
         cookies=request.cookies
         )
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
+    try: 
+        data = response.json() 
+    except requests.exceptions.JSONDecodeError: 
+        data = []
+
+    if response.status_code in [200, 201, 204]:
+        return jsonify(data), response.status_code
     else:
-        data = response.json()
         return jsonify({
             "error": "Failed to fetch from microservice",
             "data_returned_from_microservice": data
@@ -103,10 +107,14 @@ def get_subscriptions():
 @swag_from('swagger/get_current_subscriptions_total_price.yaml')
 def get_total_price():
     response = requests.get(f"{MICROSERVICES['abonnement']}/subscriptions/current/total-price",cookies=request.cookies)
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
+    try: 
+        data = response.json() 
+    except requests.exceptions.JSONDecodeError: 
+        data = []
+
+    if response.status_code in [200, 201, 204]:
+        return jsonify(data), response.status_code
     else:
-        data = response.json()
         return jsonify({
             "error": "Failed to fetch from microservice",
             "data_returned_from_microservice": data
@@ -117,10 +125,14 @@ def get_total_price():
 @swag_from('swagger/get_all_damage_reports.yaml')
 def get_damage_reports():
     response = requests.get(f"{MICROSERVICES['skade']}/damage-reports",cookies=request.cookies)
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
+    try: 
+        data = response.json() 
+    except requests.exceptions.JSONDecodeError: 
+        data = []
+
+    if response.status_code in [200, 201, 204]:
+        return jsonify(data), response.status_code
     else:
-        data = response.json()
         return jsonify({
             "error": "Failed to fetch from microservice",
             "data_returned_from_microservice": data
@@ -131,38 +143,50 @@ def get_damage_reports():
 @swag_from('swagger/get_damage_types.yaml')
 def get_damage_types():
     response = requests.get(f"{MICROSERVICES['skade']}/damage-types",cookies=request.cookies)
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
+    try: 
+        data = response.json() 
+    except requests.exceptions.JSONDecodeError: 
+        data = []
+
+    if response.status_code in [200, 201, 204]:
+        return jsonify(data), response.status_code
     else:
-        data = response.json()
         return jsonify({
             "error": "Failed to fetch from microservice",
             "data_returned_from_microservice": data
         }), response.status_code
 
-# ----------------------------------------------------- GET /cars/<id>/damage-costs
-@app.route('/cars/<id>/damage-costs', methods=['GET'])
+# ----------------------------------------------------- GET /cars/<id>/total-cost
+@app.route('/cars/<id>/total-cost', methods=['GET'])
 #@swag_from('swagger/get_subscriptions.yaml') # TODO
 def get_damage_costs(id):
-    response = requests.get(f"{MICROSERVICES['abonnement']}/cars/{id}/damage-costs",cookies=request.cookies)
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
+    response = requests.get(f"{MICROSERVICES['car']}/cars/{id}/total-cost",cookies=request.cookies)
+    try: 
+        data = response.json() 
+    except requests.exceptions.JSONDecodeError: 
+        data = []
+
+    if response.status_code in [200, 201, 204]:
+        return jsonify(data), response.status_code
     else:
-        data = response.json()
         return jsonify({
             "error": "Failed to fetch from microservice",
             "data_returned_from_microservice": data
         }), response.status_code
 
-# ----------------------------------------------------- GET /damage-reports/subscriptions/<subscriptionId>/total-damage
-@app.route('/damage-reports/subscriptions/<subscriptionId>/total-damage', methods=['GET'])
+# ----------------------------------------------------- GET /subscriptions/<subscriptionId>/total-cost
+@app.route('/subscriptions/<subscriptionId>/total-cost', methods=['GET'])
 @swag_from('swagger/get_total_cost_by_subscriptionid.yaml')
 def get_total_damage(subscriptionId):
-    response = requests.get(f"{MICROSERVICES['skade']}/damage-reports/subscriptions/{subscriptionId}/total-damage",cookies=request.cookies)
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
+    response = requests.get(f"{MICROSERVICES['skade']}/damage-reports/subscriptions/{subscriptionId}/total-cost",cookies=request.cookies)
+    try: 
+        data = response.json() 
+    except requests.exceptions.JSONDecodeError: 
+        data = []
+
+    if response.status_code in [200, 201, 204]:
+        return jsonify(data), response.status_code
     else:
-        data = response.json()
         return jsonify({
             "error": "Failed to fetch from microservice",
             "data_returned_from_microservice": data
