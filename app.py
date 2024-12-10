@@ -14,8 +14,8 @@ load_dotenv()
 # MICROSERVICES:
 MICROSERVICES = {
     "user": os.getenv("USER_MICROSERVICE_URL", "http://localhost:5005"),
-    "abonnement": os.getenv("ABONNEMENT_MICROSERVICE_URL", "http://localhost:5006"),
-    "skade": os.getenv("SKADE_MICROSERVICE_URL", "http://localhost:5007"),
+    "subscription": os.getenv("ABONNEMENT_MICROSERVICE_URL", "http://localhost:5006"),
+    "damage": os.getenv("SKADE_MICROSERVICE_URL", "http://localhost:5007"),
 }
 
 # Initialize Swagger
@@ -157,10 +157,10 @@ def get_damage_types():
         }), response.status_code
 
 # ----------------------------------------------------- GET /cars/<id>/total-cost
-@app.route('/cars/<id>/total-cost', methods=['GET'])
+@app.route('/cars/<int:id>/total-cost', methods=['GET'])
 #@swag_from('swagger/get_subscriptions.yaml') # TODO
 def get_damage_costs(id):
-    response = requests.get(f"{MICROSERVICES['car']}/cars/{id}/total-cost",cookies=request.cookies)
+    response = requests.get(f"{MICROSERVICES['damage']}/cars/{id}/total-cost",cookies=request.cookies)
     try: 
         data = response.json() 
     except requests.exceptions.JSONDecodeError: 
@@ -179,7 +179,7 @@ def get_damage_costs(id):
 @swag_from('swagger/get_total_cost_by_subscriptionid.yaml')
 def get_total_damage(subscriptionId):
     response = requests.get(f"{MICROSERVICES['skade']}/damage-reports/subscriptions/{subscriptionId}/total-cost",cookies=request.cookies)
-    try: 
+    try:
         data = response.json() 
     except requests.exceptions.JSONDecodeError: 
         data = []
@@ -237,4 +237,4 @@ def page_not_found_405(e):
     return jsonify({"message": "Method not allowed - double check the method you are using"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5002)))
