@@ -1,192 +1,81 @@
 # Finance Gateway
 
-This gateway handles financial operations including subscriptions, pricing, and damage cost summaries.
+## Table of Contents 
+1. [Overview](#overview) 
+    - [Purpose](#purpose) 
+    - [Key Responsibilities](#key-responsibilities) 
+2. [Features](#features) 
+3. [Technology Stack](#technology-stack) 
+4. [Environment Variables](#environment-variables) 
+5. [Routing Configuration](#routing-configuration) 
+6. [Endpoints](#endpoints) 
+    - [Base URL](#base-url) 
+    - [Endpoint Documentation](#endpoint-documentation) 
+7. [Swagger Documentation](#swagger-documentation) 
 
-## Table of Contents
-- [API Endpoints](#api-endpoints)
-  - [GET /](#get)
-  - [GET /subscriptions](#get-subscriptions)
-  - [GET /subscriptions/current/total-price](#get-subscriptionscurrenttotal-price)
-  - [GET /damage-reports](#get-damage-reports)
-  - [GET /damage-types](#get-damage-types)
-  - [GET /cars/{id}/damage-costs](#get-carsiddamage-costs)
-  - [GET /damage-reports/subscriptions/{subscriptionId}/total-damage](#get-damage-reportssubscriptionssubscriptionidtotal-damage)
-  - [POST /login](#post-login)
-- [Error Handling](#error-handling)
-- [License](#license)
 
-## API Endpoints
+## Overview
+### Purpose
+- Acts as a central access point for routing requests to various microservices in the architecture.
 
-### GET /
-- **Description**: Provides information about the service and its endpoints.
-- **Example Request**:
-    ```http
-    GET /
-    ```
-- **Response**:
-    ```json
-    {
-        "service": "Finance Gateway",
-        "description": "This gateway handles financial operations including subscriptions, pricing, and damage cost summaries.",
-        "endpoints": [
-            {
-                "path": "/subscriptions",
-                "method": "GET",
-                "description": "Get all subscriptions",
-                "response": "JSON array of subscription objects",
-                "role_required": "admin or finance"
-            },
-            ...
-        ]
-    }
-    ```
-- **Response Codes**: `200`, `500`
+### Key Responsibilities
+- Load balancing and request forwarding.
+- Centralized authentication and authorization.
+- API rate limiting and logging (if applicable).
 
-### GET /subscriptions
-- **Description**: Retrieve a list of subscriptions.
-- **Role Required**: admin or finance
-- **Example Request**:
-    ```http
-    GET /subscriptions
-    ```
-- **Response**:
-    ```json
-    [
-        {
-            "subscription_id": 1,
-            "car_id": 101,
-            "subscription_start_date": "2024-12-01",
-            "subscription_end_date": "2025-12-01",
-            "subscription_duration_months": 12,
-            "km_driven_during_subscription": 15000,
-            "contracted_km": 20000,
-            "monthly_subscription_price": 26500,
-            "delivery_location": "Copenhagen",
-            "has_delivery_insurance": true
-        },
-        ...
-    ]
-    ```
-- **Response Codes**: `200`, `400`, `500`
+### Roles required: 
+One of following roles are required for all endpoints except login and health:
+- admin
+- finance
 
-### GET /subscriptions/current/total-price
-- **Description**: Retrieve the total price of current active subscriptions.
-- **Role Required**: admin or finance
-- **Example Request**:
-    ```http
-    GET /subscriptions/current/total-price
-    ```
-- **Response**:
-    ```json
-    {
-        "total_price": 599.98
-    }
-    ```
-- **Response Codes**: `200`, `400`, `404`, `500`
+## Features
+- Reverse proxy for routing requests to services.
+- Centralized API endpoint for the entire application.
+- Swagger/OpenAPI documentation for the aggregated API endpoints.
 
-### GET /damage-reports
-- **Description**: Retrieve all damage reports.
-- **Role Required**: admin or finance
-- **Example Request**:
-    ```http
-    GET /damage-reports
-    ```
-- **Response**:
-    ```json
-    [
-        {
-            "damagereportid": 1,
-            "carid": 1,
-            "subscriptionid": 1,
-            "reportdate": "2024-12-07",
-            "description": "Scratch on front bumper",
-            "damagetypeid": 1
-        },
-        ...
-    ]
-    ```
-- **Response Codes**: `200`, `204`, `500`
+## Technology Stack
+- **Programming Language**: Python
+- **Framework**: Flask
+- **Routing Library**: Flask
+- **API Documentation**: Swagger/OpenAPI
+- **Deployment**: Azure Web App (Docker container)
+- **CI/CD**: GitHub Actions
 
-### GET /damage-types
-- **Description**: Retrieve all damage types.
-- **Role Required**: admin or finance
-- **Example Request**:
-    ```http
-    GET /damage-types
-    ```
-- **Response**:
-    ```json
-    [
-        {
-            "id": 1,
-            "damage_type": "Ridse",
-            "severity": "Minor",
-            "repair_cost": 500
-        },
-        ...
-    ]
-    ```
-- **Response Codes**: `200`, `500`
+## Environment Variables
+| Variable                   | Description                                      |
+|----------------------------|--------------------------------------------------|
+| SECRET_KEY                 | Secret key for the application                   |
+| ABONNEMENT_MICROSERVICE_URL| URL for the subscription microservice              |
+| USER_MICROSERVICE_URL      | URL for the user microservice                    |
+| SKADE_MICROSERVICE_URL     | URL for the damage microservice                   |
 
-### GET /cars/{id}/damage-costs
-- **Description**: Retrieve damage costs for a specific car by ID.
-- **Role Required**: admin or finance
-- **Example Request**:
-    ```http
-    GET /cars/{id}/damage-costs
-    ```
-- **Response**:
-    ```json
-    {
-        "car_id": 1,
-        "total_damage_costs": 1500
-    }
-    ```
-- **Response Codes**: `200`, `404`, `500`
+## Routing Configuration
+The gateway uses a configuration file (e.g., routes.json) to define service endpoints and routes. Example:
+```json
+{
+    "/subscription": "https://abonnement-microservice-dkeda4efcje4aega.northeurope-01.azurewebsites.net",
+    "/user": "https://user-microservice-d6f9fsdkdzh7hndv.northeurope-01.azurewebsites.net",
+    "/damage": "https://skade-microservice-cufpgqgfcufqa8er.northeurope-01.azurewebsites.net"
+}
+```
 
-### GET /damage-reports/subscriptions/{subscriptionId}/total-damage
-- **Description**: Retrieve total damage costs for a specific subscription by ID.
-- **Role Required**: admin or finance
-- **Example Request**:
-    ```http
-    GET /damage-reports/subscriptions/{subscriptionId}/total-damage
-    ```
-- **Response**:
-    ```json
-    {
-        "subscriptionid": 1,
-        "total_amount": 1000
-    }
-    ```
-- **Response Codes**: `200`, `404`, `500`
+## Endpoints
+### Base URL
+- **Local**: http://localhost:5002
+- **Production (Azure)**: https://finance-gateway-b3grdpa6e6bterbg.northeurope-01.azurewebsites.net
 
-### POST /login
-- **Description**: Authenticate an existing user.
-- **Role Required**: none
-- **Example Request**:
-    ```http
-    POST /login
-    Content-Type: application/json
+### Endpoint Documentation
 
-    {
-        "email": "user@example.com",
-        "password": "password123"
-    }
-    ```
-- **Response**:
-    ```json
-    {
-        "message": "Login successful.",
-        "Authorization": "Bearer <token>"
-    }
-    ```
-- **Response Codes**: `200`, `400`, `401`, `500`
+| Method | Endpoint                          | Description                                    | Request Body                                              | Response           |
+|--------|-----------------------------------|------------------------------------------------|-----------------------------------------------------------|--------------------|
+| GET    | /subscriptions                    | Retrieve all subscriptions                     | N/A                                                       | Depends on service |
+| GET    | /subscriptions/current/total-price| Retrieve total price of current subscriptions  | N/A                                                       | Depends on service |
+| GET    | /damage-reports                   | Retrieve all damage reports                    | N/A                                                       | Depends on service |
+| GET    | /damage-types                     | Retrieve all damage types                      | N/A                                                       | Depends on service |
+| GET    | /cars/<int:id>/total-cost         | Retrieve total damage costs for a car          | N/A                                                       | Depends on service |
+| GET    | /subscriptions/<subscriptionId>/total-cost | Retrieve total damage costs for a subscription | N/A                                             | Depends on service |
+| POST   | /login                            | Handle user login                              | `{"email": "user@example.com", "password": "userpassword"}`| Depends on service |
+| GET    | /health                           | Health check for the service                   | N/A                                                       | 200                |
 
-## Error Handling
-- **400**: Bad Request - The request could not be understood or was missing required parameters.
-- **401**: Unauthorized - Authentication failed or user does not have permissions for the desired action.
-- **404**: Not Found - The requested resource could not be found.
-- **500**: Internal Server Error - An error occurred on the server.
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+## Swagger Documentation 
+Swagger UI is available at [`<Base URL>/docs`](https://finance-gateway-b3grdpa6e6bterbg.northeurope-01.azurewebsites.net/docs).
