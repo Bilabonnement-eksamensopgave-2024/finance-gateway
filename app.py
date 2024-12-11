@@ -34,42 +34,42 @@ def service_info():
                 "method": "GET",
                 "description": "Get all subscriptions",
                 "response": "JSON array of subscription objects",
-                "role_required": "admin or finance"
+                "role_required": "admin, finance"
             },
             {
                 "path": "/subscriptions/current/total-price",
                 "method": "GET",
                 "description": "Get the total price of current subscriptions",
                 "response": "JSON object with total price",
-                "role_required": "admin or finance"
+                "role_required": "admin, finance"
             },
             {
                 "path": "/damage-reports",
                 "method": "GET",
                 "description": "Get all damage reports",
                 "response": "JSON array of damage report objects",
-                "role_required": "admin or finance"
+                "role_required": "admin, finance"
             },
             {
                 "path": "/damage-types",
                 "method": "GET",
                 "description": "Get all damage types",
                 "response": "JSON array of damage type objects",
-                "role_required": "admin or finance"
+                "role_required": "admin, finance"
             },
             {
                 "path": "/cars/<id>/damage-costs",
                 "method": "GET",
                 "description": "Get damage costs for a specific car by ID",
                 "response": "JSON object with damage costs",
-                "role_required": "admin or finance"
+                "role_required": "admin, finance"
             },
             {
                 "path": "/damage-reports/subscriptions/<subscriptionId>/total-damage",
                 "method": "GET",
                 "description": "Get total damage costs for a specific subscription by ID",
                 "response": "JSON object with total damage costs",
-                "role_required": "admin or finance"
+                "role_required": "admin, finance"
             },
             {
                 "path": "/login",
