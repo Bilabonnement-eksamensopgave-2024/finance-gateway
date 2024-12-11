@@ -86,7 +86,7 @@ def service_info():
 @swag_from('swagger/get_subscriptions.yaml')
 def get_subscriptions():
     response = requests.get(
-        url=f"{MICROSERVICES['abonnement']}/subscriptions", 
+        url=f"{MICROSERVICES['subscription']}/subscriptions", 
         cookies=request.cookies
         )
     try: 
@@ -106,7 +106,7 @@ def get_subscriptions():
 @app.route('/subscriptions/current/total-price', methods=['GET'])
 @swag_from('swagger/get_current_subscriptions_total_price.yaml')
 def get_total_price():
-    response = requests.get(f"{MICROSERVICES['abonnement']}/subscriptions/current/total-price",cookies=request.cookies)
+    response = requests.get(f"{MICROSERVICES['subscription']}/subscriptions/current/total-price",cookies=request.cookies)
     try: 
         data = response.json() 
     except requests.exceptions.JSONDecodeError: 
@@ -124,7 +124,7 @@ def get_total_price():
 @app.route('/damage-reports', methods=['GET'])
 @swag_from('swagger/get_all_damage_reports.yaml')
 def get_damage_reports():
-    response = requests.get(f"{MICROSERVICES['skade']}/damage-reports",cookies=request.cookies)
+    response = requests.get(f"{MICROSERVICES['damage']}/damage-reports",cookies=request.cookies)
     try: 
         data = response.json() 
     except requests.exceptions.JSONDecodeError: 
@@ -142,7 +142,7 @@ def get_damage_reports():
 @app.route('/damage-types', methods=['GET'])
 @swag_from('swagger/get_damage_types.yaml')
 def get_damage_types():
-    response = requests.get(f"{MICROSERVICES['skade']}/damage-types",cookies=request.cookies)
+    response = requests.get(f"{MICROSERVICES['damage']}/damage-types",cookies=request.cookies)
     try: 
         data = response.json() 
     except requests.exceptions.JSONDecodeError: 
@@ -178,7 +178,7 @@ def get_damage_costs(id):
 @app.route('/subscriptions/<subscriptionId>/total-cost', methods=['GET'])
 @swag_from('swagger/get_total_cost_by_subscriptionid.yaml')
 def get_total_damage(subscriptionId):
-    response = requests.get(f"{MICROSERVICES['skade']}/damage-reports/subscriptions/{subscriptionId}/total-cost",cookies=request.cookies)
+    response = requests.get(f"{MICROSERVICES['damage']}/damage-reports/subscriptions/{subscriptionId}/total-cost",cookies=request.cookies)
     try:
         data = response.json() 
     except requests.exceptions.JSONDecodeError: 
