@@ -4,6 +4,7 @@
 1. [Overview](#overview) 
     - [Purpose](#purpose) 
     - [Key Responsibilities](#key-responsibilities) 
+    - [Roles required](#roles-required)
 2. [Features](#features) 
 3. [Technology Stack](#technology-stack) 
 4. [Environment Variables](#environment-variables) 
