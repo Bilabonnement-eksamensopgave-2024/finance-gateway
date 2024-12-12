@@ -29,6 +29,16 @@ One of following roles are required for all endpoints except login and health:
 - admin
 - finance
 
+## Architecture Diagram Snippet
+```mermaid
+graph LR
+    A[Browser] --> B[Finance Gateway]
+    B --> C[Subscription Microservice]
+    B --> E[Damage Microservice]
+    C --> D[Subscription Database]
+    E --> F[Damage Database]
+```
+
 ## Features
 - Reverse proxy for routing requests to services.
 - Centralized API endpoint for the entire application.
